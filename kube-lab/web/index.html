@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kube Lab</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="wrap">
+    <p class="eyebrow">Kubernetes practice project</p>
+    <h1 id="site-title">Kube Lab</h1>
+    <p class="lead">A small site that grows with me: static now, then an API, a database,
+      GitOps, Grafana and my own domain.</p>
+  </header>
+
+  <main class="wrap">
+    <section>
+      <div class="section-head">
+        <h2>Live status</h2>
+        <button id="refresh" type="button">Refresh</button>
+      </div>
+      <div class="cards">
+        <article class="card" id="card-web">
+          <h3>Frontend</h3>
+          <p class="state" data-state="pending">checking</p>
+          <p class="detail" id="web-detail">&nbsp;</p>
+        </article>
+        <article class="card" id="card-api">
+          <h3>API</h3>
+          <p class="state" data-state="pending">checking</p>
+          <p class="detail" id="api-detail">&nbsp;</p>
+        </article>
+        <article class="card" id="card-db">
+          <h3>Database</h3>
+          <p class="state" data-state="pending">checking</p>
+          <p class="detail" id="db-detail">&nbsp;</p>
+        </article>
+      </div>
+      <p class="hint">The API and database cards light up once a backend answers at
+        <code>/api/health</code>. Until then they honestly say "not deployed".</p>
+    </section>
+
+    <section>
+      <h2>Roadmap</h2>
+      <ol class="roadmap">
+        <li data-done="true"><strong>Phase 1: static site.</strong> Container, Deployment, Service, Ingress.</li>
+        <li><strong>Phase 2: config.</strong> Change the title via a ConfigMap, no rebuild.</li>
+        <li><strong>Phase 3: API.</strong> Small backend that reports its Pod name.</li>
+        <li><strong>Phase 4: database.</strong> StatefulSet, PersistentVolume, Secret.</li>
+        <li><strong>Phase 5: GitOps.</strong> Git is the source of truth, the cluster follows.</li>
+        <li><strong>Phase 6: observability.</strong> Prometheus and Grafana.</li>
+        <li><strong>Phase 7: my domain.</strong> DNS and TLS certificates.</li>
+      </ol>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <span>Version <span id="version">unknown</span></span>
+  </footer>
+</body>
+</html>
