@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: kube-lab
+  labels:
+    app: kube-lab-http
+spec:
+  type: ClusterIP
+  selector:
+    app: kube-lab-http          # matches the Pod labels, not the Deployment
+  ports:
+    - name: http                # Prometheus will find the port by this name
+      protocol: TCP
+      port: 80
+      targetPort: 80            # number, not name: safe during the rollout
