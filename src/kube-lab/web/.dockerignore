@@ -1,7 +1,3 @@
-.git
-.gitignore
-README.md
-k8s/
 Dockerfile
 .dockerignore
 **/*:Zone.Identifier

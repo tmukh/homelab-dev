@@ -1,1 +1,15 @@
+# OS and editor junk
+.DS_Store
+*.swp
+
+# Windows download markers (appear when files are copied from Windows into WSL)
 *:Zone.Identifier
+
+# Dependencies and logs
+node_modules/
+*.log
+
+# Secrets: never commit these
+.env
+kubeconfig*
+*.secret.yaml
