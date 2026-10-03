@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: kube-lab-web
-          image: kube-lab-web:v1
+          image: ghcr.io/tmukh/kube-lab-web:sha-dac0da6
           ports:
             - name: http
               containerPort: 80     # official nginx listens on 80
