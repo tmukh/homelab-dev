@@ -9,32 +9,32 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: kube-lab-http        # immutable after creation: do not change
+      app: kube-lab-http
   template:
     metadata:
       labels:
-        app: kube-lab-http      # must include everything in the selector
+        app: kube-lab-http
     spec:
       containers:
         - name: kube-lab-web
           image: ghcr.io/tmukh/kube-lab-web:sha-dac0da6
           ports:
             - name: http
-              containerPort: 80     # official nginx listens on 80
+              containerPort: 80
           resources:
-            requests:               # what the scheduler reserves
+            requests:
               cpu: 10m
               memory: 16Mi
-            limits:                 # ceiling: memory overuse = OOMKilled
+            limits:
               cpu: 100m
               memory: 64Mi
-          readinessProbe:           # gates traffic and rollout progress
+          readinessProbe:
             httpGet:
               path: /
               port: http
             initialDelaySeconds: 5
             periodSeconds: 10
-          livenessProbe:            # failure restarts the container
+          livenessProbe:
             httpGet:
               path: /
               port: http

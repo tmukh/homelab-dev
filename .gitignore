@@ -2,14 +2,14 @@
 .DS_Store
 *.swp
 
-# Windows download markers (appear when files are copied from Windows into WSL)
+# Windows Zone.Identifier files
 *:Zone.Identifier
 
 # Dependencies and logs
 node_modules/
 *.log
 
-# Secrets: never commit these
+# Secrets
 .env
 kubeconfig*
 *.secret.yaml
