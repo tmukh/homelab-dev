@@ -8,9 +8,9 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: kube-lab-http          # matches the Pod labels, not the Deployment
+    app: kube-lab-http
   ports:
-    - name: http                # Prometheus will find the port by this name
+    - name: http
       protocol: TCP
       port: 80
-      targetPort: 80            # number, not name: safe during the rollout
+      targetPort: 80
