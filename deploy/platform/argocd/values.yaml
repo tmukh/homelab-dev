@@ -1,0 +1,7 @@
+configs:
+  params:
+    server.insecure: true   # serve plain HTTP; TLS gets terminated at the edge (Traefik/Cloudflare) later
+dex:
+  enabled: false            # no SSO: single user, saves a pod and memory
+notifications:
+  enabled: false            # no alerting channel yet
