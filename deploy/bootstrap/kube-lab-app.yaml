@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-lab
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tmukh/homelab-dev.git
+    path: deploy/apps/kube-lab
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-lab
