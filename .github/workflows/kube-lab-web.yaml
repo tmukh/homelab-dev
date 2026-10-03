@@ -9,7 +9,7 @@ on:
   pull_request:
     paths:
       - "src/kube-lab/web/**"
-      - ".github/workflows/kube-lab-web.yml"
+      - ".github/workflows/kube-lab-web.yaml"
   workflow_dispatch:
 
 permissions:
