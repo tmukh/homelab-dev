@@ -6,7 +6,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: whoami
+    app: whoamii
   ports:
     - name: http
       port: 80
