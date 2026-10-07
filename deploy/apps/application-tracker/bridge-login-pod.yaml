@@ -1,0 +1,40 @@
+# One-time Proton login. NOT in kustomization.yaml, so Argo never applies it.
+# Scale the Deployment to 0 first: bridge-data is ReadWriteOnce and Bridge locks its vault.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bridge-login
+  namespace: application-tracker
+  labels:
+    app: bridge-login
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: bridge
+      image: ghcr.io/tmukh/proton-bridge:sha-f04f6e9
+      args: ["--cli"]
+      stdin: true
+      tty: true
+      securityContext:
+        runAsUser: 10002
+        runAsGroup: 10002
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop: ["ALL"]
+      volumeMounts:
+        - name: bridge-data
+          mountPath: /home/bridge
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: bridge-data
+      persistentVolumeClaim:
+        claimName: bridge-data
+    - name: tmp
+      emptyDir: {}
