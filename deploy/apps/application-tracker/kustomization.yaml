@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: application-tracker
+
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - networkpolicy.yaml
+  - backup-cronjob.yaml
+
+# Everything cluster-specific lives below this line.
+
+images:
+  - name: application-tracker
+    newName: ghcr.io/tmukh/application-tracker
+    newTag: sha-4150752
+  - name: proton-bridge
+    newName: ghcr.io/tmukh/proton-bridge
+    newTag: sha-f04f6e9
+
+configMapGenerator:
+  - name: tracker-config
+    literals:
+      - TRACKER_CLASSIFIER=ollama
+      - OLLAMA_URL=http://100.126.179.99:11434
+      - OLLAMA_MODEL=qwen2.5:7b
+      - IMAP_HOST=127.0.0.1
+      - IMAP_PORT=1143
+      - IMAP_SECURITY=starttls
+      - IMAP_MAILBOX=Labels/Bewerbungen
+      - EARLIEST_DATE=2026-01-01
+      - POLL_SECONDS=300
+
+patches:
+  - target:
+      kind: NetworkPolicy
+      name: application-tracker
+    patch: |-
+      - op: replace
+        path: /spec/egress/1/to/0/ipBlock/cidr
+        value: 100.126.179.99/32

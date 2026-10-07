@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application-tracker
+  labels:
+    app: application-tracker
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: application-tracker
+  template:
+    metadata:
+      labels:
+        app: application-tracker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tracker
+          image: application-tracker
+          envFrom:
+            - configMapRef:
+                name: tracker-config
+          ports:
+            - name: http
+              containerPort: 5055
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          securityContext:
+            runAsUser: 10001
+            runAsGroup: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tracker-data
+              mountPath: /data
+            - name: tracker-tmp
+              mountPath: /tmp
+        - name: bridge
+          image: proton-bridge
+          args: ["--noninteractive"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 1Gi
+          securityContext:
+            runAsUser: 10002
+            runAsGroup: 10002
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: bridge-data
+              mountPath: /home/bridge
+            - name: bridge-tmp
+              mountPath: /tmp
+      volumes:
+        - name: tracker-data
+          persistentVolumeClaim:
+            claimName: tracker-data
+        - name: bridge-data
+          persistentVolumeClaim:
+            claimName: bridge-data
+        - name: tracker-tmp
+          emptyDir: {}
+        - name: bridge-tmp
+          emptyDir: {}
