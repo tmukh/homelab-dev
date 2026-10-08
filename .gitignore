@@ -13,3 +13,11 @@ node_modules/
 .env
 kubeconfig*
 *.secret.yaml
+
+# Terraform: providers, state and local inputs never go in Git (the lock file does)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+tfplan
+crash.log
