@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kube-lab-config
+  namespace: kube-lab
+data:
+  config.json: |
+    {
+      "title": "Kubernetes Lab",
+      "version": "v2-configmap"
+    }

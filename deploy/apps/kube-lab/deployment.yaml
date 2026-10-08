@@ -40,3 +40,12 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 20
+          volumeMounts:
+            - name: site-config
+              mountPath: /usr/share/nginx/html/config.json
+              subPath: config.json
+              readOnly: true
+      volumes:
+        - name: site-config
+          configMap:
+            name: kube-lab-config
