@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: night-sky-digest
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tmukh/homelab-dev.git
+    targetRevision: main
+    path: deploy/apps/night-sky-digest
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: night-sky
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
