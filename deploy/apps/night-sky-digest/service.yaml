@@ -4,6 +4,10 @@ metadata:
   name: night-sky-postgres
   labels:
     app: night-sky-postgres
+  annotations:
+    # Tailscale operator: expose on the tailnet only (dev access from the Windows PC).
+    tailscale.com/expose: "true"
+    tailscale.com/hostname: night-sky-postgres
 spec:
   type: ClusterIP
   selector:
