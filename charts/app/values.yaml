@@ -1,0 +1,24 @@
+# Defaults for every app. Each app's own values file overrides these.
+image: ""                 # repository@sha256:... (digest-pinned)
+port: 8000
+command: []               # empty: the image's CMD
+env: []                   # plain container env entries (name/value or name/valueFrom)
+replicas: 1
+resources:
+  requests: {cpu: 50m, memory: 128Mi}
+  limits: {memory: 512Mi}
+probes:
+  path: /healthz
+initContainers: []        # [{name, command}] run with the same image, env and security settings
+cronJobs: []              # [{name, schedule, command, resources?, activeDeadlineSeconds?}]
+timeZone: Europe/Berlin
+networkPolicy:
+  # Who may reach the Service port. Namespaces by name; same-namespace pods are always allowed.
+  allowFromNamespaces: []
+ingress:
+  enabled: false
+  className: tailscale
+  host: ""                # tailscale: short machine name; nginx/traefik: full hostname
+serviceMonitor:
+  enabled: false          # needs the Prometheus operator CRDs (M5 monitoring)
+  path: /metrics

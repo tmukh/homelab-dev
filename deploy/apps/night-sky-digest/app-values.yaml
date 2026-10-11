@@ -1,0 +1,46 @@
+# night-sky-digest on the shared app chart (charts/app).
+image: ghcr.io/tmukh/night-sky-digest@sha256:2d40196d903ab039a5fa4edef207c1bbbd0af4a6d5cead9e65903e7652d9c14f  # sha-65289ff (M4)
+
+env:
+  - name: DATABASE_URL  # written by CloudNativePG for the night_sky owner
+    valueFrom: {secretKeyRef: {name: night-sky-db-app, key: uri}}
+  - name: OLLAMA_URL    # Windows PC's GPU over the tailnet (ADR 0002), see ollama-egress.yaml
+    value: http://ollama:11434
+  - name: LANGFUSE_BASE_URL
+    value: http://langfuse-web.langfuse.svc:3000
+  - name: LANGFUSE_PUBLIC_KEY
+    valueFrom: {secretKeyRef: {name: night-sky-langfuse, key: public-key}}
+  - name: LANGFUSE_SECRET_KEY
+    valueFrom: {secretKeyRef: {name: night-sky-langfuse, key: secret-key}}
+  - name: HOME
+    value: /tmp
+
+resources:
+  requests: {cpu: 100m, memory: 256Mi}
+  limits: {memory: 1Gi}
+
+initContainers:
+  - name: migrate
+    command: [python, -m, night_sky_digest, migrate]
+
+# Europe/Berlin. Ingest after the 01:00 backup; arXiv announces around 02:00 CET.
+cronJobs:
+  - name: ingest
+    schedule: "0 2 * * *"
+    command: [python, -m, night_sky_digest, ingest]
+  - name: embed
+    schedule: "30 2 * * *"
+    command: [python, -m, night_sky_digest, embed]
+    activeDeadlineSeconds: 7200
+  - name: digest
+    schedule: "0 6 * * *"
+    command: [python, -m, night_sky_digest, digest]
+
+networkPolicy:
+  allowFromNamespaces: [tailscale]
+
+# Tailnet for now (https://night-sky.tailadc3fe.ts.net); the public route via Cloudflare comes next.
+ingress:
+  enabled: true
+  className: tailscale
+  host: night-sky

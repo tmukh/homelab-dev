@@ -1,0 +1,13 @@
+# Egress to Ollama on the Windows PC over the tailnet. The Tailscale operator replaces externalName
+# with its egress proxy, so pods just call http://ollama:11434.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama
+  annotations:
+    tailscale.com/tailnet-fqdn: tarik.tailadc3fe.ts.net
+spec:
+  type: ExternalName
+  externalName: placeholder
+  ports:
+    - {name: http, port: 11434, protocol: TCP}

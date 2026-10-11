@@ -1,0 +1,35 @@
+# night-sky-digest workloads (API + nightly CronJobs) from the shared chart. The namespace, database
+# and secrets come from the night-sky-digest app (deploy/apps/night-sky-digest).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: night-sky-digest-app
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: charts/app
+      helm:
+        releaseName: night-sky-digest
+        valueFiles:
+          - $values/deploy/apps/night-sky-digest/app-values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: night-sky
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
