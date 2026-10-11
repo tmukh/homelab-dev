@@ -18,3 +18,11 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=false
+      - ServerSideApply=true
+    # The Cluster/ObjectStore kinds only exist once the CNPG apps have synced.
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
