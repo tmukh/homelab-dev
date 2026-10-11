@@ -1,0 +1,31 @@
+# ClickHouse operator: runs ClickHouseCluster / KeeperCluster resources (Langfuse's trace store).
+# The chart is only published to an OCI registry; see argocd-repositories for the repo entry.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: clickhouse-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: ghcr.io/clickhouse
+    chart: clickhouse-operator-helm
+    targetRevision: 0.0.5  # version the Langfuse chart 2.1.2 documents
+    helm:
+      releaseName: clickhouse-operator
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: clickhouse-operator
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m

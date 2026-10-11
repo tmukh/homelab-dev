@@ -1,0 +1,85 @@
+# Langfuse chart 2.1.2, sized for a single-node homelab (about 3 GB requested in total).
+# Every credential comes from the SealedSecret `langfuse` in manifests/: under Argo CD the chart
+# can't auto-generate them (Helm `lookup` doesn't run in `helm template`), and regenerated salt or
+# encryption keys would break API keys and stored data on every sync.
+
+langfuse:
+  salt:
+    secretKeyRef: {name: langfuse, key: salt}
+  encryptionKey:
+    secretKeyRef: {name: langfuse, key: encryption-key}
+  nextauth:
+    url: https://langfuse.tailadc3fe.ts.net
+    secret:
+      secretKeyRef: {name: langfuse, key: nextauth-secret}
+  features:
+    telemetryEnabled: false
+  web:
+    resources:
+      requests: {cpu: 100m, memory: 512Mi}
+      limits: {memory: 1Gi}
+  worker:
+    resources:
+      requests: {cpu: 100m, memory: 512Mi}
+      limits: {memory: 1Gi}
+
+postgresql:
+  auth:
+    existingSecret: langfuse
+    secretKeys:
+      adminPasswordKey: postgresql-password
+      userPasswordKey: postgresql-password
+  settings:
+    existingSecret: langfuse
+  userDatabase:
+    existingSecret: langfuse
+  storage:
+    requestedSize: 5Gi
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {memory: 512Mi}
+
+clickhouse:
+  crdCheck: false  # the operator's CRDs come from another Argo CD app
+  auth:
+    existingSecret: langfuse
+    existingSecretKey: clickhouse-password
+  cluster:
+    replicas: 1
+    storage:
+      size: 10Gi
+    resources:
+      requests: {cpu: 250m, memory: 1Gi}
+      limits: {memory: 2Gi}
+  keeper:
+    replicas: 1  # chart default is 3 for HA; one node can't do HA anyway
+    storage:
+      size: 2Gi
+    resources:
+      requests: {cpu: 50m, memory: 128Mi}
+      limits: {memory: 512Mi}
+
+redis:
+  auth:
+    existingSecret: langfuse
+    existingSecretPasswordKey: redis-password
+    usersExistingSecret: langfuse
+  resources:
+    requests: {cpu: 20m, memory: 64Mi}
+    limits: {memory: 256Mi}
+
+# Note: the SeaweedFS subchart always renders a `langfuse-s3-sftp-secret` with random passwords, even
+# with SFTP off. It's a Helm hook, which Argo CD runs but doesn't diff, and nothing uses it.
+s3:
+  auth:
+    existingSecret: langfuse
+    rootUserSecretKey: s3-user
+    rootPasswordSecretKey: s3-password
+  allInOne:
+    s3:
+      existingConfigSecret: langfuse
+    data:
+      size: 5Gi
+    resources:
+      requests: {cpu: 50m, memory: 256Mi}
+      limits: {memory: 1Gi}

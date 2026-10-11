@@ -1,0 +1,38 @@
+# Langfuse: LLM tracing for night-sky-digest (M4). Tailnet-only UI.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: langfuse
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://langfuse.github.io/langfuse-k8s
+      chart: langfuse
+      targetRevision: 2.1.2
+      helm:
+        releaseName: langfuse
+        valueFiles:
+          - $values/deploy/platform/langfuse/values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: deploy/platform/langfuse/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: langfuse
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
