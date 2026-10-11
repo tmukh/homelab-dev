@@ -1,0 +1,112 @@
+# CloudNativePG cluster for night-sky-digest. Replaces the hand-written StatefulSet (statefulset.yaml):
+# on first start it imports the night_sky database from the old instance (pg_dump/pg_restore), then
+# archives WAL and takes nightly base backups to the backup store.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: night-sky-db
+spec:
+  instances: 1  # single node; a second instance would sit on the same disk
+  # CNPG "standard" image includes pgvector. Pinned by digest like everything else.
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:d456fe7392b0b2147b4cea0dc124d51aee7ad3ec522c57f3177799e01f29a2d1
+  storage:
+    size: 10Gi
+  resources:
+    requests: {cpu: 100m, memory: 384Mi}
+    limits: {memory: 1Gi}
+  bootstrap:
+    initdb:
+      database: night_sky
+      owner: night_sky
+      import:
+        type: microservice
+        databases: [night_sky]
+        source:
+          externalCluster: legacy-postgres
+  externalClusters:
+    - name: legacy-postgres
+      connectionParameters:
+        host: night-sky-postgres
+        user: night_sky
+        dbname: night_sky
+      password:
+        name: night-sky-postgres
+        key: password
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: backup-store
+  managed:
+    services:
+      additional:
+        # Dev access from the Windows PC over the tailnet, as night-sky-db (read-write instance).
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: night-sky-db-tailnet
+              annotations:
+                tailscale.com/expose: "true"
+                tailscale.com/hostname: night-sky-db
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: backup-store
+spec:
+  configuration:
+    destinationPath: s3://postgres/
+    endpointURL: http://backup-store-seaweedfs-all-in-one.backups.svc:8333
+    s3Credentials:
+      accessKeyId:
+        name: backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: backup-s3
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+    data:
+      compression: gzip
+  retentionPolicy: "14d"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: night-sky-db-nightly
+spec:
+  # six-field cron (seconds first): 01:00 every night, before ingest
+  schedule: "0 0 1 * * *"
+  backupOwnerReference: self
+  immediate: true  # first backup right after creation, so a restore can be tested straight away
+  cluster:
+    name: night-sky-db
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+---
+# Only what needs Postgres may reach it: night-sky workloads, the Tailscale proxy (dev access),
+# and the CNPG operator, which checks instance status on port 8000.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: night-sky-db
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: night-sky-db
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: tailscale
+      ports:
+        - {protocol: TCP, port: 5432}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: cnpg-system
+      ports:
+        - {protocol: TCP, port: 8000}

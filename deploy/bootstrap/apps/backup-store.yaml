@@ -1,0 +1,39 @@
+# S3-compatible store for Postgres backups (SeaweedFS; MinIO community stopped shipping images in 2025).
+# On the same disk as the database: protects against mistakes, not against losing the laptop.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: backup-store
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://seaweedfs.github.io/seaweedfs/helm
+      chart: seaweedfs
+      targetRevision: 4.47.0
+      helm:
+        releaseName: backup-store
+        valueFiles:
+          - $values/deploy/platform/backup-store/values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: deploy/platform/backup-store/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backups
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m

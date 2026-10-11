@@ -1,0 +1,22 @@
+# Single SeaweedFS pod (master + volume + filer + S3 gateway). Bucket "postgres" for CNPG backups.
+# Credentials: the IAM config lives in the SealedSecret backup-store-s3 (manifests/).
+master:
+  enabled: false
+volume:
+  enabled: false
+filer:
+  enabled: false
+allInOne:
+  enabled: true
+  s3:
+    enabled: true
+    enableAuth: true
+    existingConfigSecret: backup-store-s3
+    createBuckets:
+      - name: postgres
+  data:
+    type: persistentVolumeClaim
+    size: 20Gi
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {memory: 512Mi}
