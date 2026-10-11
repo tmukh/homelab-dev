@@ -33,3 +33,9 @@ Status: **new** (introduced), **used** (used it, not explained back yet), **conf
 | Service DNS name (`<svc>.<ns>.svc`) | 1b | used | 2026-10-05 | kubernetes.default.svc is the API server's Service |
 | syncPolicy.automated vs syncOptions | 1b | used | 2026-10-05 | |
 | StatefulSet | 1 | new | 2026-10-03 | seen as argocd-application-controller-0 |
+| Operators and CRDs as platform dependencies (cert-manager, ClickHouse operator) | night-sky M4 | new | 2026-10-12 | Langfuse needs both before it can sync |
+| Helm `lookup` vs GitOps: generated secrets regenerate under `helm template` | night-sky M4 | new | 2026-10-12 | pin every credential in a SealedSecret |
+| OCI Helm charts in Argo CD (repository with enableOCI) | night-sky M4 | new | 2026-10-12 | |
+| Helm hooks under Argo CD (run, but not diffed) | night-sky M4 | new | 2026-10-12 | SeaweedFS sftp secret |
+| Capacity: WSL memory limit (.wslconfig), swap as a warning sign | night-sky M4 | used | 2026-10-12 | 7.6 GB with 1.5 GB swap in use -> raised to 12 GB; [ws12] typo meant the file was ignored |
+
