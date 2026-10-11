@@ -49,3 +49,17 @@ Things I learned:
 - Tailscale's proxy keeps the Host header, so the app's Origin check works without changes.
 - I still had an old copy running by hand on the laptop behind `tailscale serve`. Two copies meant two databases and double the Ollama work, so I shut it down.
 - Backups are on the same disk for now. Good against a bad migration, not against losing the laptop.
+
+## 2026-10-11 / 10-12: Langfuse on the cluster (night-sky-digest M4)
+
+- WSL had 7.6 GB with 1.5 GB of swap in use, too little for Langfuse. Raised to 12 GB in .wslconfig.
+  The old file said [ws12] instead of [wsl2], so none of it had ever applied.
+- First sync failed: Langfuse's ClickHouseCluster arrived before the operator's CRDs. Fixed itself via
+  sync retries once the clickhouse-operator app had synced.
+- langfuse-web CrashLoopBackOff, exit code 134: "JavaScript heap out of memory". Node sized its heap from
+  the 1 GiB limit (~512 MB). Exposed by `kubectl logs --previous`. Fix: 2 GiB limit, NODE_OPTIONS heap 1.5 GB.
+- The fix sat in Git but didn't roll out: the first sync was still retrying and blocked new ones.
+  Exposed by `kubectl get application langfuse -o jsonpath='{.status.operationState}'`. Terminated it.
+- Postgres StatefulSet OutOfSync while Healthy: server-filled volumeClaimTemplate defaults. Fixed with
+  ServerSideDiff=true on the langfuse app.
+

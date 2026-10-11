@@ -14,6 +14,8 @@ langfuse:
       secretKeyRef: {name: langfuse, key: nextauth-secret}
   features:
     telemetryEnabled: false
+    # The admin account exists; nobody else may create one.
+    signUpDisabled: true
   web:
     # Node sizes its heap from the memory limit: 1 GiB gave ~512 MB and the web pod died with
     # "JavaScript heap out of memory" (exit 134) right after startup. Set the heap explicitly
