@@ -4,6 +4,10 @@ kind: Application
 metadata:
   name: langfuse
   namespace: argocd
+  annotations:
+    # Compare against what the API server would store, defaults included. Without it the Postgres
+    # StatefulSet stayed OutOfSync: the server fills in volumeClaimTemplate fields the chart omits.
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: default
   sources:
