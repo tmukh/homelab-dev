@@ -1,4 +1,4 @@
-# Langfuse chart 2.1.2, sized for a single-node homelab (about 3 GB requested in total).
+# Langfuse chart 2.1.2, sized for a single-node homelab (about 3.3 GB requested in total).
 # Every credential comes from the SealedSecret `langfuse` in manifests/: under Argo CD the chart
 # can't auto-generate them (Helm `lookup` doesn't run in `helm template`), and regenerated salt or
 # encryption keys would break API keys and stored data on every sync.
@@ -15,9 +15,16 @@ langfuse:
   features:
     telemetryEnabled: false
   web:
+    # Node sizes its heap from the memory limit: 1 GiB gave ~512 MB and the web pod died with
+    # "JavaScript heap out of memory" (exit 134) right after startup. Set the heap explicitly
+    # and leave ~500 MB of the limit for everything outside it.
+    pod:
+      additionalEnv:
+        - name: NODE_OPTIONS
+          value: --max-old-space-size=1536
     resources:
-      requests: {cpu: 100m, memory: 512Mi}
-      limits: {memory: 1Gi}
+      requests: {cpu: 100m, memory: 768Mi}
+      limits: {memory: 2Gi}
   worker:
     resources:
       requests: {cpu: 100m, memory: 512Mi}
