@@ -38,4 +38,8 @@ Status: **new** (introduced), **used** (used it, not explained back yet), **conf
 | OCI Helm charts in Argo CD (repository with enableOCI) | night-sky M4 | new | 2026-10-12 | |
 | Helm hooks under Argo CD (run, but not diffed) | night-sky M4 | new | 2026-10-12 | SeaweedFS sftp secret |
 | Capacity: WSL memory limit (.wslconfig), swap as a warning sign | night-sky M4 | used | 2026-10-12 | 7.6 GB with 1.5 GB swap in use -> raised to 12 GB; [ws12] typo meant the file was ignored |
+| Helm chart as a golden path (charts/app, PSS restricted, values per app) | night-sky M5 | used | 2026-10-12 | |
+| ignoreDifferences / RespectIgnoreDifferences for operator-owned fields | night-sky M5 | used | 2026-10-12 | Tailscale egress externalName |
+| Ingress catch-all (host-less rule) and host precedence | night-sky M5 | used | 2026-10-12 | the "Traefik 404 vs nginx 404" lesson, live |
+| Mount propagation (HostToContainer needs a shared mount) | night-sky M5 | new | 2026-10-12 | WSL2 node-exporter |
 

@@ -63,3 +63,18 @@ Things I learned:
 - Postgres StatefulSet OutOfSync while Healthy: server-filled volumeClaimTemplate defaults. Fixed with
   ServerSideDiff=true on the langfuse app.
 
+## 2026-10-12: night-sky-digest M5 on the cluster
+
+- CloudNativePG + Barman plugin + SeaweedFS backup store; night-sky-db imported from the old StatefulSet.
+  Nightly backup failed at upload part 19: SeaweedFS OOM at 512 Mi
+  (`kubectl logs night-sky-db-1 -c plugin-barman-cloud`). Restore drill matched 51282/51282/2.
+- Shared chart charts/app; night-sky API + CronJobs; Tailscale egress Service to Ollama on the PC.
+- Cloudflare Tunnel via the CLI (dashboard wanted a card). First public request got an nginx 404 from
+  kube-lab's host-less catch-all Ingress (`curl -D -` showed `nginx/1.30.5`, not Traefik).
+- kube-prometheus-stack: node-exporter CreateContainerError on WSL2, "/ is not a shared or slave mount"
+  (`kubectl describe pod`), fixed with mountPropagation None. Grafana liveness kills at 384 Mi.
+- Twice a commit pushed after its PR had been merged never reached main (NightSkyMetricsMissing fired).
+  Rule now: no pushes to a PR once it's announced ready.
+- Argo apps that wrote operator-owned fields (Tailscale egress externalName, CNPG defaults) stayed OutOfSync:
+  ignoreDifferences + RespectIgnoreDifferences, ServerSideDiff.
+
