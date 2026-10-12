@@ -17,6 +17,8 @@ allInOne:
   data:
     type: persistentVolumeClaim
     size: 20Gi
+  # 512 Mi was too little: the nightly base backup (multipart upload, ~300 MB of tables and
+  # embeddings) killed the pod mid-upload ("Could not connect to the endpoint URL ... partNumber=19").
   resources:
-    requests: {cpu: 50m, memory: 128Mi}
-    limits: {memory: 512Mi}
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 1536Mi}
