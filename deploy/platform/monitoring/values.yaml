@@ -82,6 +82,11 @@ kube-state-metrics:
     limits: {memory: 256Mi}
 
 prometheus-node-exporter:
+  # WSL2's root mount isn't shared, so HostToContainer propagation fails with CreateContainerError
+  # ("path / is mounted on / but it is not a shared or slave mount"). Plain bind mount instead.
+  hostRootFsMount:
+    enabled: true
+    mountPropagation: None
   resources:
     requests: {cpu: 10m, memory: 32Mi}
     limits: {memory: 128Mi}
