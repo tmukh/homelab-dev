@@ -1,0 +1,38 @@
+{{- range .Values.cronJobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $.Release.Name }}-{{ .name }}
+  labels: {{- include "app.labels" $ | nindent 4 }}
+spec:
+  schedule: {{ .schedule | quote }}
+  timeZone: {{ $.Values.timeZone }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .backoffLimit | default 1 }}
+      activeDeadlineSeconds: {{ .activeDeadlineSeconds | default 3600 }}
+      template:
+        metadata:
+          labels:
+            {{- include "app.labels" $ | nindent 12 }}
+            app.kubernetes.io/component: {{ .name }}
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext: {{- include "app.podSecurity" $ | nindent 12 }}
+          containers:
+            - name: {{ .name }}
+              image: {{ $.Values.image }}
+              command: {{- toYaml .command | nindent 16 }}
+              env: {{- toYaml $.Values.env | nindent 16 }}
+              securityContext: {{- include "app.containerSecurity" $ | nindent 16 }}
+              resources: {{- toYaml (.resources | default $.Values.resources) | nindent 16 }}
+              volumeMounts:
+                - {name: tmp, mountPath: /tmp}
+          volumes:
+            - {name: tmp, emptyDir: {}}
+{{- end }}

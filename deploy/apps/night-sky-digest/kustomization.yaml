@@ -12,3 +12,5 @@ resources:
   - networkpolicy.yaml
   - db-cluster.yaml
   - backup-s3.sealed.yaml
+  - ollama-egress.yaml
+  - langfuse-keys.sealed.yaml

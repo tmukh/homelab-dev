@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels: {{- include "app.selector" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.labels" . | nindent 8 }}
+        {{- include "app.selector" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext: {{- include "app.podSecurity" . | nindent 8 }}
+      {{- with .Values.initContainers }}
+      initContainers:
+        {{- range . }}
+        - name: {{ .name }}
+          image: {{ $.Values.image }}
+          command: {{- toYaml .command | nindent 12 }}
+          env: {{- toYaml $.Values.env | nindent 12 }}
+          securityContext: {{- include "app.containerSecurity" $ | nindent 12 }}
+          resources: {{- toYaml $.Values.resources | nindent 12 }}
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: app
+          image: {{ .Values.image }}
+          {{- with .Values.command }}
+          command: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+          env: {{- toYaml .Values.env | nindent 12 }}
+          readinessProbe:
+            httpGet: {path: {{ .Values.probes.path }}, port: http}
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: {{ .Values.probes.path }}, port: http}
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          securityContext: {{- include "app.containerSecurity" . | nindent 12 }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: tmp, emptyDir: {}}

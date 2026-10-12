@@ -8,6 +8,7 @@ A homelab Kubernetes platform (k3s on WSL2) deployed with GitOps. A learning pro
 |---|---|
 | src/ | Application source code and Dockerfiles. This is what CI builds. |
 | deploy/apps/ | Kubernetes manifests, one folder per application |
+| charts/app/ | Shared base chart: Deployment, Service, NetworkPolicy, CronJobs, Ingress, ServiceMonitor (PSS restricted) |
 | deploy/platform/ | Cluster-wide tooling: Argo CD, monitoring, sealed-secrets, cloudflared |
 | deploy/bootstrap/ | Argo CD Application objects that point at the folders above |
 | .github/workflows/ | CI pipelines |

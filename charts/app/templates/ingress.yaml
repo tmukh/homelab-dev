@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels: {{- include "app.labels" . | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if eq .Values.ingress.className "tailscale" }}
+  defaultBackend:
+    service: {name: {{ .Release.Name }}, port: {number: 80}}
+  tls:
+    - hosts: [{{ .Values.ingress.host }}]
+  {{- else }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: {name: {{ .Release.Name }}, port: {number: 80}}
+  {{- end }}
+{{- end }}
