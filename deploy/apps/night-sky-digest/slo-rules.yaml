@@ -2,8 +2,8 @@
 # - Freshness: digest ready by 07:00 Europe/Berlin on 99% of days (28 days). Computed in the app
 #   from the digests table (night_sky_digest_on_time_days / _expected_days). Note: 1% of 28 days
 #   is 0.28 days, so a single late day already exhausts the budget.
-# - Search availability: 99% of /search requests without a 5xx (28 days).
-# - Search latency: 95% of /search requests under 0.8 s, i.e. p95 < 800 ms (28 days).
+# - Search availability: 99% of search requests (/find page and /search API) without a 5xx (28 days).
+# - Search latency: 95% of search requests (/find, /search) under 0.8 s, i.e. p95 < 800 ms (28 days).
 # Burn-rate alerts follow the multiwindow pattern from the Google SRE workbook: a long and a short
 # window must both burn too fast, so a short spike can't page, and alerts stop soon after recovery.
 apiVersion: monitoring.coreos.com/v1
@@ -16,25 +16,25 @@ spec:
     interval: 1m
     rules:
     - record: night_sky:search_error_ratio:rate5m
-      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[5m])), 1e-9)
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find",status=~"5.."}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[5m])), 1e-9)
     - record: night_sky:search_slow_ratio:rate5m
-      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[5m])), 1e-9)
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route=~"/search|/find",le="0.8"}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[5m])), 1e-9)
     - record: night_sky:search_error_ratio:rate30m
-      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[30m])), 1e-9)
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find",status=~"5.."}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[30m])), 1e-9)
     - record: night_sky:search_slow_ratio:rate30m
-      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[30m])), 1e-9)
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route=~"/search|/find",le="0.8"}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[30m])), 1e-9)
     - record: night_sky:search_error_ratio:rate1h
-      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[1h])), 1e-9)
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find",status=~"5.."}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h])), 1e-9)
     - record: night_sky:search_slow_ratio:rate1h
-      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[1h])), 1e-9)
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route=~"/search|/find",le="0.8"}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h])), 1e-9)
     - record: night_sky:search_error_ratio:rate6h
-      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[6h])), 1e-9)
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find",status=~"5.."}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[6h])), 1e-9)
     - record: night_sky:search_slow_ratio:rate6h
-      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[6h])), 1e-9)
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route=~"/search|/find",le="0.8"}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[6h])), 1e-9)
     - record: night_sky:search_error_ratio:rate28d
-      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[28d])), 1e-9)
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find",status=~"5.."}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[28d])), 1e-9)
     - record: night_sky:search_slow_ratio:rate28d
-      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[28d])), 1e-9)
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route=~"/search|/find",le="0.8"}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[28d])), 1e-9)
     - record: night_sky:digest_freshness_sli
       expr: night_sky_digest_on_time_days / clamp_min(night_sky_digest_expected_days, 1)
     - record: night_sky:digest_freshness_budget_remaining
@@ -42,7 +42,7 @@ spec:
   - name: night-sky-slo-alerts
     rules:
     - alert: NightSkySearchErrorBudgetFastBurn
-      expr: (night_sky:search_error_ratio:rate1h > 14.4 * 0.01) and (night_sky:search_error_ratio:rate5m > 14.4 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h]))
+      expr: (night_sky:search_error_ratio:rate1h > 14.4 * 0.01) and (night_sky:search_error_ratio:rate5m > 14.4 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h]))
         > 10
       for: 2m
       labels:
@@ -51,7 +51,7 @@ spec:
         summary: 'Search errors: burning the 28-day error budget 14.4x too fast'
         description: 1h and 5m windows both above 14.4x the budget rate (0.01).
     - alert: NightSkySearchErrorBudgetSlowBurn
-      expr: (night_sky:search_error_ratio:rate6h > 6 * 0.01) and (night_sky:search_error_ratio:rate30m > 6 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h])) >
+      expr: (night_sky:search_error_ratio:rate6h > 6 * 0.01) and (night_sky:search_error_ratio:rate30m > 6 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h])) >
         10
       for: 15m
       labels:
@@ -60,7 +60,7 @@ spec:
         summary: 'Search errors: burning the 28-day error budget 6x too fast'
         description: 6h and 30m windows both above 6x the budget rate (0.01).
     - alert: NightSkySearchLatencyFastBurn
-      expr: (night_sky:search_slow_ratio:rate1h > 14.4 * 0.05) and (night_sky:search_slow_ratio:rate5m > 14.4 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h]))
+      expr: (night_sky:search_slow_ratio:rate1h > 14.4 * 0.05) and (night_sky:search_slow_ratio:rate5m > 14.4 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h]))
         > 10
       for: 2m
       labels:
@@ -69,7 +69,7 @@ spec:
         summary: 'Search latency: burning the 28-day error budget 14.4x too fast'
         description: 1h and 5m windows both above 14.4x the budget rate (0.05).
     - alert: NightSkySearchLatencySlowBurn
-      expr: (night_sky:search_slow_ratio:rate6h > 6 * 0.05) and (night_sky:search_slow_ratio:rate30m > 6 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h])) > 10
+      expr: (night_sky:search_slow_ratio:rate6h > 6 * 0.05) and (night_sky:search_slow_ratio:rate30m > 6 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route=~"/search|/find"}[1h])) > 10
       for: 15m
       labels:
         severity: warning

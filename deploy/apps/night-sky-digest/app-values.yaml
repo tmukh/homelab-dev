@@ -1,6 +1,6 @@
 # night-sky-digest on the shared app chart (charts/app).
-# sha-cadf217 (M5 metrics); signature verified with cosign against the repo's main workflow
-image: ghcr.io/tmukh/night-sky-digest@sha256:ea6d2aab15446cdc005a5f3d9d4cd1ed1b55ea54a55dc14f9ff1551c89cb1f89
+# sha-aa1c5aa (website); signature verified with cosign against the repo's main workflow
+image: ghcr.io/tmukh/night-sky-digest@sha256:1d87c6ce396e0f516a7f202352e57bd48020291261143a983b53ff24ea3c7ee1
 
 env:
   - name: DATABASE_URL  # written by CloudNativePG for the night_sky owner
