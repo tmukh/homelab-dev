@@ -1,0 +1,86 @@
+# Picked up by Grafana's dashboard sidecar (label grafana_dashboard: "1").
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-night-sky-slos
+  labels:
+    grafana_dashboard: '1'
+data:
+  night-sky-slos.json: "{\n \"title\": \"Night Sky Digest: SLOs\",\n \"uid\": \"night-sky-slos\",\n \"schemaVersion\": 39,\n \"time\": {\n  \"from\": \"now-24h\",\n  \"to\": \"now\"\n },\n \"refresh\":\
+    \ \"1m\",\n \"tags\": [\n  \"night-sky\",\n  \"slo\"\n ],\n \"panels\": [\n  {\n   \"type\": \"row\",\n   \"title\": \"Freshness SLO: digest by 07:00 Europe/Berlin on 99% of days (28 d)\",\n   \"gridPos\"\
+    : {\n    \"h\": 1,\n    \"w\": 24,\n    \"x\": 0,\n    \"y\": 0\n   },\n   \"collapsed\": false\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Freshness SLI (28 d)\",\n   \"description\": \"\"\
+    ,\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 0,\n    \"y\": 1\n   },\n   \"targets\": [\n \
+    \   {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"night_sky:digest_freshness_sli\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"\
+    fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"percentunit\",\n     \"decimals\": 1,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\"\
+    : \"red\",\n        \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 0.95\n       },\n       {\n        \"color\": \"green\",\n        \"value\": 0.99\n     \
+    \  }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n\
+    \   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Error budget remaining\",\n   \"description\": \"1 = untouched, 0 = used up, below 0 = SLO missed. 1% of 28 days is 0.28 days: one late digest\
+    \ exhausts it.\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 6,\n    \"y\": 1\n   },\n   \"\
+    targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"night_sky:digest_freshness_budget_remaining\",\n     \"refId\"\
+    : \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"percentunit\",\n     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n\
+    \       {\n        \"color\": \"red\",\n        \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 0\n       },\n       {\n        \"color\": \"green\",\n     \
+    \   \"value\": 0.5\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\"\
+    : \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Hours since last digest\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"\
+    prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 12,\n    \"y\": 1\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"\
+    uid\": \"prometheus\"\n     },\n     \"expr\": \"(time() - night_sky_digest_last_success_timestamp_seconds) / 3600\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n\
+    \     \"unit\": \"h\",\n     \"decimals\": 1,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"green\",\n        \"value\": null\n       },\n\
+    \       {\n        \"color\": \"orange\",\n        \"value\": 24\n       },\n       {\n        \"color\": \"red\",\n        \"value\": 25\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n\
+    \   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\"\
+    : \"Hours since last ingest\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n\
+    \    \"x\": 18,\n    \"y\": 1\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"(time() - night_sky_ingest_last_success_timestamp_seconds)\
+    \ / 3600\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"h\",\n     \"decimals\": 1,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n  \
+    \    \"steps\": [\n       {\n        \"color\": \"green\",\n        \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 24\n       },\n       {\n        \"color\"\
+    : \"red\",\n        \"value\": 26\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n  \
+    \  },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"row\",\n   \"title\": \"Search SLOs: 99% without errors, 95% under 800 ms (28 d)\",\n   \"gridPos\": {\n    \"h\": 1,\n    \"\
+    w\": 24,\n    \"x\": 0,\n    \"y\": 6\n   },\n   \"collapsed\": false\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Availability (28 d)\",\n   \"description\": \"\",\n   \"datasource\": {\n  \
+    \  \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 0,\n    \"y\": 7\n   },\n   \"targets\": [\n    {\n     \"datasource\":\
+    \ {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"1 - night_sky:search_error_ratio:rate28d\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n\
+    \    \"defaults\": {\n     \"unit\": \"percentunit\",\n     \"decimals\": 2,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"red\",\n     \
+    \   \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 0.98\n       },\n       {\n        \"color\": \"green\",\n        \"value\": 0.99\n       }\n      ]\n  \
+    \   }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n\
+    \   \"type\": \"stat\",\n   \"title\": \"Availability budget remaining\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\"\
+    : {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 6,\n    \"y\": 7\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n   \
+    \  \"expr\": \"1 - night_sky:search_error_ratio:rate28d / 0.01\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"percentunit\",\n     \"decimals\"\
+    : 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"red\",\n        \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n\
+    \        \"value\": 0\n       },\n       {\n        \"color\": \"green\",\n        \"value\": 0.5\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\"\
+    : {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Latency SLI: share under 800 ms (28 d)\",\n\
+    \   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 12,\n    \"y\": 7\n \
+    \  },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"1 - night_sky:search_slow_ratio:rate28d\",\n     \"\
+    refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"percentunit\",\n     \"decimals\": 1,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\"\
+    : [\n       {\n        \"color\": \"red\",\n        \"value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 0.9\n       },\n       {\n        \"color\": \"green\",\n\
+    \        \"value\": 0.95\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n   \
+    \ \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Latency budget remaining\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n\
+    \    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 18,\n    \"y\": 7\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\"\
+    ,\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"1 - night_sky:search_slow_ratio:rate28d / 0.05\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"\
+    unit\": \"percentunit\",\n     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"red\",\n        \"value\": null\n       },\n\
+    \       {\n        \"color\": \"orange\",\n        \"value\": 0\n       },\n       {\n        \"color\": \"green\",\n        \"value\": 0.5\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n\
+    \   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"timeseries\",\n   \"\
+    title\": \"Search p50 / p95 latency\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 8,\n    \"w\": 12,\n    \"x\": 0,\n   \
+    \ \"y\": 12\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"histogram_quantile(0.5, sum by (le) (rate(night_sky_http_request_duration_seconds_bucket{route=\\\
+    \"/search\\\"}[5m])))\",\n     \"legendFormat\": \"p50\",\n     \"refId\": \"A\"\n    },\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n   \
+    \  \"expr\": \"histogram_quantile(0.95, sum by (le) (rate(night_sky_http_request_duration_seconds_bucket{route=\\\"/search\\\"}[5m])))\",\n     \"legendFormat\": \"p95\",\n     \"refId\": \"B\"\n  \
+    \  }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"s\"\n    },\n    \"overrides\": []\n   }\n  },\n  {\n   \"type\": \"timeseries\",\n   \"title\": \"Requests by route and status\"\
+    ,\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 8,\n    \"w\": 12,\n    \"x\": 12,\n    \"y\": 12\n   },\n   \"targets\": [\n\
+    \    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"sum by (route, status) (rate(night_sky_http_request_duration_seconds_count[5m]))\"\
+    ,\n     \"legendFormat\": \"{{route}} {{status}}\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"reqps\"\n    },\n    \"overrides\": []\n   }\n\
+    \  },\n  {\n   \"type\": \"row\",\n   \"title\": \"Pipeline\",\n   \"gridPos\": {\n    \"h\": 1,\n    \"w\": 24,\n    \"x\": 0,\n    \"y\": 20\n   },\n   \"collapsed\": false\n  },\n  {\n   \"type\"\
+    : \"stat\",\n   \"title\": \"Papers indexed\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n\
+    \    \"w\": 6,\n    \"x\": 0,\n    \"y\": 21\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"night_sky_papers\"\
+    ,\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"short\",\n     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"\
+    steps\": [\n       {\n        \"color\": \"green\",\n        \"value\": null\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\"\
+    : [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"Prompt tokens (latest digest)\",\n   \"description\": \"\",\n\
+    \   \"datasource\": {\n    \"type\": \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 6,\n    \"y\": 21\n   },\n   \"targets\": [\n  \
+    \  {\n     \"datasource\": {\n      \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"night_sky_digest_prompt_tokens\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"\
+    fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"short\",\n     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"green\"\
+    ,\n        \"value\": null\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n \
+    \   \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\": \"stat\",\n   \"title\": \"LLM seconds (latest digest)\",\n   \"description\": \"\",\n   \"datasource\": {\n    \"type\": \"prometheus\"\
+    ,\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 12,\n    \"y\": 21\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n      \"type\": \"prometheus\"\
+    ,\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"night_sky_digest_llm_seconds\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n    \"defaults\": {\n     \"unit\": \"s\",\n\
+    \     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"green\",\n        \"value\": null\n       }\n      ]\n     }\n    },\n\
+    \    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  },\n  {\n   \"type\"\
+    : \"stat\",\n   \"title\": \"Degraded searches (24 h)\",\n   \"description\": \"Hybrid searches answered lexical-only because Ollama on the PC was unreachable.\",\n   \"datasource\": {\n    \"type\"\
+    : \"prometheus\",\n    \"uid\": \"prometheus\"\n   },\n   \"gridPos\": {\n    \"h\": 5,\n    \"w\": 6,\n    \"x\": 18,\n    \"y\": 21\n   },\n   \"targets\": [\n    {\n     \"datasource\": {\n     \
+    \ \"type\": \"prometheus\",\n      \"uid\": \"prometheus\"\n     },\n     \"expr\": \"increase(night_sky_search_degraded_total[24h])\",\n     \"refId\": \"A\"\n    }\n   ],\n   \"fieldConfig\": {\n\
+    \    \"defaults\": {\n     \"unit\": \"short\",\n     \"decimals\": 0,\n     \"thresholds\": {\n      \"mode\": \"absolute\",\n      \"steps\": [\n       {\n        \"color\": \"green\",\n        \"\
+    value\": null\n       },\n       {\n        \"color\": \"orange\",\n        \"value\": 1\n       }\n      ]\n     }\n    },\n    \"overrides\": []\n   },\n   \"options\": {\n    \"reduceOptions\": {\n\
+    \     \"calcs\": [\n      \"lastNotNull\"\n     ]\n    },\n    \"colorMode\": \"background\"\n   }\n  }\n ]\n}"

@@ -1,0 +1,13 @@
+# Grafana on the tailnet only: https://grafana.tailadc3fe.ts.net
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+spec:
+  ingressClassName: tailscale
+  defaultBackend:
+    service:
+      name: kps-grafana
+      port: {number: 80}
+  tls:
+    - hosts: [grafana]

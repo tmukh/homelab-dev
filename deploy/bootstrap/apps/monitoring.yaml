@@ -1,0 +1,38 @@
+# Prometheus, Alertmanager (Telegram), Grafana, node-exporter, kube-state-metrics.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: 91.8.1
+      helm:
+        releaseName: kps
+        valueFiles:
+          - $values/deploy/platform/monitoring/values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: deploy/platform/monitoring/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true  # the CRDs are too big for client-side apply's annotation
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m
