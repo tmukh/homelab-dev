@@ -1,0 +1,115 @@
+# SLOs for night-sky-digest (CAREER-PLAN §3, M5):
+# - Freshness: digest ready by 07:00 Europe/Berlin on 99% of days (28 days). Computed in the app
+#   from the digests table (night_sky_digest_on_time_days / _expected_days). Note: 1% of 28 days
+#   is 0.28 days, so a single late day already exhausts the budget.
+# - Search availability: 99% of /search requests without a 5xx (28 days).
+# - Search latency: 95% of /search requests under 0.8 s, i.e. p95 < 800 ms (28 days).
+# Burn-rate alerts follow the multiwindow pattern from the Google SRE workbook: a long and a short
+# window must both burn too fast, so a short spike can't page, and alerts stop soon after recovery.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: night-sky-slos
+spec:
+  groups:
+  - name: night-sky-slo-recording
+    interval: 1m
+    rules:
+    - record: night_sky:search_error_ratio:rate5m
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[5m])), 1e-9)
+    - record: night_sky:search_slow_ratio:rate5m
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[5m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[5m])), 1e-9)
+    - record: night_sky:search_error_ratio:rate30m
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[30m])), 1e-9)
+    - record: night_sky:search_slow_ratio:rate30m
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[30m])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[30m])), 1e-9)
+    - record: night_sky:search_error_ratio:rate1h
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[1h])), 1e-9)
+    - record: night_sky:search_slow_ratio:rate1h
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[1h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[1h])), 1e-9)
+    - record: night_sky:search_error_ratio:rate6h
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[6h])), 1e-9)
+    - record: night_sky:search_slow_ratio:rate6h
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[6h])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[6h])), 1e-9)
+    - record: night_sky:search_error_ratio:rate28d
+      expr: sum(rate(night_sky_http_request_duration_seconds_count{route="/search",status=~"5.."}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[28d])), 1e-9)
+    - record: night_sky:search_slow_ratio:rate28d
+      expr: 1 - sum(rate(night_sky_http_request_duration_seconds_bucket{route="/search",le="0.8"}[28d])) / clamp_min(sum(rate(night_sky_http_request_duration_seconds_count{route="/search"}[28d])), 1e-9)
+    - record: night_sky:digest_freshness_sli
+      expr: night_sky_digest_on_time_days / clamp_min(night_sky_digest_expected_days, 1)
+    - record: night_sky:digest_freshness_budget_remaining
+      expr: (night_sky_digest_on_time_days - 0.99 * night_sky_digest_expected_days) / clamp_min(0.01 * night_sky_digest_expected_days, 1e-9)
+  - name: night-sky-slo-alerts
+    rules:
+    - alert: NightSkySearchErrorBudgetFastBurn
+      expr: (night_sky:search_error_ratio:rate1h > 14.4 * 0.01) and (night_sky:search_error_ratio:rate5m > 14.4 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h]))
+        > 10
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: 'Search errors: burning the 28-day error budget 14.4x too fast'
+        description: 1h and 5m windows both above 14.4x the budget rate (0.01).
+    - alert: NightSkySearchErrorBudgetSlowBurn
+      expr: (night_sky:search_error_ratio:rate6h > 6 * 0.01) and (night_sky:search_error_ratio:rate30m > 6 * 0.01) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h])) >
+        10
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Search errors: burning the 28-day error budget 6x too fast'
+        description: 6h and 30m windows both above 6x the budget rate (0.01).
+    - alert: NightSkySearchLatencyFastBurn
+      expr: (night_sky:search_slow_ratio:rate1h > 14.4 * 0.05) and (night_sky:search_slow_ratio:rate5m > 14.4 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h]))
+        > 10
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: 'Search latency: burning the 28-day error budget 14.4x too fast'
+        description: 1h and 5m windows both above 14.4x the budget rate (0.05).
+    - alert: NightSkySearchLatencySlowBurn
+      expr: (night_sky:search_slow_ratio:rate6h > 6 * 0.05) and (night_sky:search_slow_ratio:rate30m > 6 * 0.05) and sum(increase(night_sky_http_request_duration_seconds_count{route="/search"}[1h])) > 10
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Search latency: burning the 28-day error budget 6x too fast'
+        description: 6h and 30m windows both above 6x the budget rate (0.05).
+    - alert: NightSkyDigestLate
+      expr: time() - night_sky_digest_last_success_timestamp_seconds > 25 * 3600
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: 'No digest for over 25 h: today''s 07:00 freshness deadline is missed'
+        description: Check the digest CronJob (kubectl -n night-sky get jobs) and whether Ollama on the PC is reachable.
+    - alert: NightSkyIngestStale
+      expr: time() - night_sky_ingest_last_success_timestamp_seconds > 26 * 3600
+      for: 30m
+      labels:
+        severity: warning
+      annotations:
+        summary: No successful ingest for over 26 h
+        description: Check the ingest CronJob logs and harvest_runs (status failed).
+    - alert: NightSkyFreshnessBudgetExhausted
+      expr: night_sky:digest_freshness_budget_remaining < 0
+      for: 1h
+      labels:
+        severity: warning
+      annotations:
+        summary: Freshness SLO (99% of days by 07:00) is below target over 28 days
+    - alert: NightSkySearchDegraded
+      expr: increase(night_sky_search_degraded_total[30m]) > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: 'Hybrid search is answering lexical-only: Ollama on the PC is unreachable'
+    - alert: NightSkyMetricsMissing
+      expr: absent(up{namespace="night-sky", service="night-sky-digest"} == 1)
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: Prometheus can't scrape the night-sky API (down, or the ServiceMonitor is broken)
