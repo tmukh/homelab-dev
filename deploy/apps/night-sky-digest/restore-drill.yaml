@@ -1,0 +1,24 @@
+# Restore drill (M5): a throwaway cluster recovered from night-sky-db's backups (base backup + WAL).
+# Verify row counts against night-sky-db, then delete this file to remove it again.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: night-sky-db-restore
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:d456fe7392b0b2147b4cea0dc124d51aee7ad3ec522c57f3177799e01f29a2d1
+  storage:
+    size: 10Gi
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 1Gi}
+  bootstrap:
+    recovery:
+      source: night-sky-db-backups
+  externalClusters:
+    - name: night-sky-db-backups
+      plugin:
+        name: barman-cloud.cloudnative-pg.io
+        parameters:
+          barmanObjectName: backup-store
+          serverName: night-sky-db
