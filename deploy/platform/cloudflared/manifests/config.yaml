@@ -13,4 +13,6 @@ ingress:
   # Only public apps get a hostname here (D:\dev\CLAUDE.md).
   - hostname: digest.takodana.dev
     service: http://traefik.kube-system.svc.cluster.local:80
+  - hostname: takodana.dev
+    service: http://traefik.kube-system.svc.cluster.local:80
   - service: http_status:404
