@@ -3,6 +3,9 @@ kind: Application
 metadata:
   name: night-sky-digest
   namespace: argocd
+  annotations:
+    # CNPG fills in Cluster defaults; compare against what the API server would store.
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   project: default
   source:
@@ -12,6 +15,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: night-sky
+  # The Tailscale operator owns the egress Service's externalName (it points it at its proxy).
+  # Without this, selfHeal would keep resetting it to "placeholder" and break egress to Ollama.
+  ignoreDifferences:
+    - kind: Service
+      name: ollama
+      jsonPointers:
+        - /spec/externalName
   syncPolicy:
     automated:
       prune: true
@@ -19,6 +29,7 @@ spec:
     syncOptions:
       - CreateNamespace=false
       - ServerSideApply=true
+      - RespectIgnoreDifferences=true
     # The Cluster/ObjectStore kinds only exist once the CNPG apps have synced.
     retry:
       limit: 10
