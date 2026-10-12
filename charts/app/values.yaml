@@ -19,6 +19,7 @@ ingress:
   enabled: false
   className: tailscale
   host: ""                # tailscale: short machine name; nginx/traefik: full hostname
+extraIngresses: []        # [{name, className, host}], e.g. a public route next to the tailnet one
 serviceMonitor:
   enabled: false          # needs the Prometheus operator CRDs (M5 monitoring)
   path: /metrics

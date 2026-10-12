@@ -1,0 +1,19 @@
+# Cloudflare Tunnel: the only public way into the cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cloudflared
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tmukh/homelab-dev.git
+    targetRevision: main
+    path: deploy/platform/cloudflared/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cloudflared
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -37,10 +37,17 @@ cronJobs:
     command: [python, -m, night_sky_digest, digest]
 
 networkPolicy:
-  allowFromNamespaces: [tailscale]
+  # tailscale: dev access; kube-system: Traefik, which serves the public route from the tunnel
+  allowFromNamespaces: [tailscale, kube-system]
 
-# Tailnet for now (https://night-sky.tailadc3fe.ts.net); the public route via Cloudflare comes next.
+# Tailnet: https://night-sky.tailadc3fe.ts.net
 ingress:
   enabled: true
   className: tailscale
   host: night-sky
+
+# Public: https://digest.takodana.dev (Cloudflare Tunnel -> Traefik -> this Ingress)
+extraIngresses:
+  - name: public
+    className: traefik
+    host: digest.takodana.dev
