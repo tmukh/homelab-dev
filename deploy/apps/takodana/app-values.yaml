@@ -1,0 +1,19 @@
+# takodana.dev (portfolio + writing) on the shared app chart (charts/app).
+# A static Next.js export served by nginx-unprivileged; it writes only its pid and temp files, under /tmp.
+# sha-aba7047; signature verified with cosign against the repo's main workflow
+image: ghcr.io/tmukh/takodana.dev@sha256:4fd125cf677780d7f98fc8717730b9da8f1223c53d071948c5faa715dc2e769a
+port: 8080
+
+resources:
+  requests: {cpu: 10m, memory: 32Mi}
+  limits: {memory: 128Mi}
+
+networkPolicy:
+  # tailscale: preview over the tailnet. kube-system (Traefik) is added when the public route goes live.
+  allowFromNamespaces: [tailscale]
+
+# Preview: https://takodana.tailadc3fe.ts.net (takodana.dev keeps pointing at the old site until the switch)
+ingress:
+  enabled: true
+  className: tailscale
+  host: takodana
