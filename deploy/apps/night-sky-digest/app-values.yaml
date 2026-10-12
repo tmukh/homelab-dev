@@ -1,5 +1,6 @@
 # night-sky-digest on the shared app chart (charts/app).
-image: ghcr.io/tmukh/night-sky-digest@sha256:2d40196d903ab039a5fa4edef207c1bbbd0af4a6d5cead9e65903e7652d9c14f  # sha-65289ff (M4)
+# sha-cadf217 (M5 metrics); signature verified with cosign against the repo's main workflow
+image: ghcr.io/tmukh/night-sky-digest@sha256:ea6d2aab15446cdc005a5f3d9d4cd1ed1b55ea54a55dc14f9ff1551c89cb1f89
 
 env:
   - name: DATABASE_URL  # written by CloudNativePG for the night_sky owner
@@ -14,6 +15,9 @@ env:
     valueFrom: {secretKeyRef: {name: night-sky-langfuse, key: secret-key}}
   - name: HOME
     value: /tmp
+  # First announcement day the nightly pipeline is responsible for (digest due 2026-10-13 07:00).
+  - name: NIGHT_SKY_SLO_START
+    value: "2026-10-12"
 
 resources:
   requests: {cpu: 100m, memory: 256Mi}
@@ -37,8 +41,8 @@ cronJobs:
     command: [python, -m, night_sky_digest, digest]
 
 networkPolicy:
-  # tailscale: dev access; kube-system: Traefik, which serves the public route from the tunnel
-  allowFromNamespaces: [tailscale, kube-system]
+  # tailscale: dev access; kube-system: Traefik (public route); monitoring: Prometheus scrapes /metrics
+  allowFromNamespaces: [tailscale, kube-system, monitoring]
 
 # Tailnet: https://night-sky.tailadc3fe.ts.net
 ingress:
@@ -51,3 +55,6 @@ extraIngresses:
   - name: public
     className: traefik
     host: digest.takodana.dev
+
+serviceMonitor:
+  enabled: true
