@@ -9,11 +9,17 @@ resources:
   limits: {memory: 128Mi}
 
 networkPolicy:
-  # tailscale: preview over the tailnet. kube-system (Traefik) is added when the public route goes live.
-  allowFromNamespaces: [tailscale]
+  # tailscale: the tailnet preview; kube-system: Traefik (public route)
+  allowFromNamespaces: [tailscale, kube-system]
 
-# Preview: https://takodana.tailadc3fe.ts.net (takodana.dev keeps pointing at the old site until the switch)
+# Tailnet: https://takodana.tailadc3fe.ts.net
 ingress:
   enabled: true
   className: tailscale
   host: takodana
+
+# Public: https://takodana.dev (Cloudflare Tunnel -> Traefik -> this Ingress)
+extraIngresses:
+  - name: public
+    className: traefik
+    host: takodana.dev
