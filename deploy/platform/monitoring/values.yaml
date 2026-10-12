@@ -67,9 +67,11 @@ grafana:
       enabled: true
       label: grafana_dashboard
       searchNamespace: ALL
+  # 384 Mi: /api/health timed out under memory pressure (kube-prometheus-stack ships ~30
+  # dashboards) and the liveness probe killed Grafana (exit 137, not OOMKilled).
   resources:
-    requests: {cpu: 20m, memory: 128Mi}
-    limits: {memory: 384Mi}
+    requests: {cpu: 50m, memory: 256Mi}
+    limits: {memory: 768Mi}
 
 prometheusOperator:
   resources:
