@@ -1,0 +1,34 @@
+# glasswing-server on the shared app chart (charts/app): SmolLM2-135M and glasswing (15.7M) on a
+# from-scratch Rust inference engine. Public, no login: it limits itself (per-IP token bucket,
+# 2 concurrent generations, 256 new tokens, 60 s), see crates/server in tmukh/glasswing.
+# The models are baked into the image, pinned by sha256; nothing is downloaded at runtime.
+image: ghcr.io/tmukh/glasswing-server@sha256:PENDING
+port: 8080
+
+env:
+  - {name: MAX_CONCURRENT, value: "2"}
+  - {name: RATE_PER_MINUTE, value: "6"}
+  - {name: RATE_BURST, value: "5"}
+  - {name: MAX_NEW_TOKENS, value: "256"}
+  - {name: CONTEXT, value: "1024"}
+  - {name: TIMEOUT_SECONDS, value: "60"}
+  # Matrix rows are split across this many cores per generation; leave room for the other apps.
+  - {name: RAYON_NUM_THREADS, value: "3"}
+
+resources:
+  # SmolLM2 is 135M parameters held as f32 (540 MB) plus glasswing (63 MB) and two KV caches.
+  requests: {cpu: 250m, memory: 900Mi}
+  limits: {memory: 1536Mi}
+
+networkPolicy:
+  # kube-system: Traefik (public route); monitoring: Prometheus scrapes /metrics
+  allowFromNamespaces: [kube-system, monitoring]
+
+# Public: https://glasswing.takodana.dev (Cloudflare Tunnel -> Traefik -> this Ingress)
+extraIngresses:
+  - name: public
+    className: traefik
+    host: glasswing.takodana.dev
+
+serviceMonitor:
+  enabled: true
