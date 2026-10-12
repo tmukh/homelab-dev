@@ -23,11 +23,17 @@ def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--namespace", required=True)
     p.add_argument("--name", required=True)
-    p.add_argument("--key", action="append", required=True, help="repeat for several keys")
+    p.add_argument("--key", action="append", default=[], help="typed at a hidden prompt; repeatable")
+    p.add_argument("--file", action="append", default=[], help="key=path, value read from the file")
     p.add_argument("--out", required=True, type=Path)
     args = p.parse_args()
 
+    if not args.key and not args.file:
+        sys.exit("give at least one --key or --file")
     data = {}
+    for item in args.file:
+        key, _, path = item.partition("=")
+        data[key] = Path(path).read_text(encoding="utf-8")
     for key in args.key:
         value = getpass.getpass(f"{key}: ")
         if not value:

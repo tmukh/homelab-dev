@@ -1,0 +1,12 @@
+# Locally managed tunnel: the routing lives here in Git, not in the Cloudflare dashboard.
+# Created with `cloudflared tunnel create homelab`; DNS via `cloudflared tunnel route dns <id> <host>`.
+tunnel: 29cadabb-6803-4a2e-9962-b9eee8df92b1
+credentials-file: /etc/cloudflared/creds/credentials.json
+metrics: 0.0.0.0:2000
+no-autoupdate: true
+ingress:
+  # Everything public goes to Traefik; which app answers is decided by Kubernetes Ingress rules.
+  # Only public apps get a hostname here (D:\dev\CLAUDE.md).
+  - hostname: digest.takodana.dev
+    service: http://traefik.kube-system.svc.cluster.local:80
+  - service: http_status:404
