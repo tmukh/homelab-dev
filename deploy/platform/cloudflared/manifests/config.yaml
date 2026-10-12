@@ -5,6 +5,10 @@ credentials-file: /etc/cloudflared/creds/credentials.json
 metrics: 0.0.0.0:2000
 no-autoupdate: true
 ingress:
+  # Internal endpoints stay internal: Prometheus scrapes /metrics inside the cluster.
+  - hostname: digest.takodana.dev
+    path: ^/metrics
+    service: http_status:404
   # Everything public goes to Traefik; which app answers is decided by Kubernetes Ingress rules.
   # Only public apps get a hostname here (D:\dev\CLAUDE.md).
   - hostname: digest.takodana.dev
