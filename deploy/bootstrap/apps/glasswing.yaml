@@ -1,0 +1,42 @@
+# glasswing-server (M7 of tmukh/glasswing) from the shared chart. No database or secrets:
+# Argo CD creates the namespace with the restricted Pod Security labels.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: glasswing
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: charts/app
+      helm:
+        releaseName: glasswing
+        valueFiles:
+          - $values/deploy/apps/glasswing/app-values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: glasswing
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/warn: restricted
+        pod-security.kubernetes.io/audit: restricted
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m

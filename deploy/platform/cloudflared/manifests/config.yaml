@@ -15,4 +15,10 @@ ingress:
     service: http://traefik.kube-system.svc.cluster.local:80
   - hostname: takodana.dev
     service: http://traefik.kube-system.svc.cluster.local:80
+  # glasswing-server: public, no login, rate-limited in the app; its metrics stay internal.
+  - hostname: glasswing.takodana.dev
+    path: ^/metrics
+    service: http_status:404
+  - hostname: glasswing.takodana.dev
+    service: http://traefik.kube-system.svc.cluster.local:80
   - service: http_status:404
