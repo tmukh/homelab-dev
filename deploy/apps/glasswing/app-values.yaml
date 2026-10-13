@@ -2,7 +2,8 @@
 # from-scratch Rust inference engine. Public, no login: it limits itself (per-IP token bucket,
 # 2 concurrent generations, 256 new tokens, 60 s), see crates/server in tmukh/glasswing.
 # The models are baked into the image, pinned by sha256; nothing is downloaded at runtime.
-image: ghcr.io/tmukh/glasswing-server@sha256:PENDING
+# sha-dffa5be; signature verified with cosign against the repo's main workflow
+image: ghcr.io/tmukh/glasswing-server@sha256:46912553045da586d4af532630198fa9b7bb0825a8ba421a02d71a533d374ed0
 port: 8080
 
 env:
