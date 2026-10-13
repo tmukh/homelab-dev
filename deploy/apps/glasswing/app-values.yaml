@@ -23,7 +23,7 @@ resources:
 
 networkPolicy:
   # kube-system: Traefik (public route); monitoring: Prometheus scrapes /metrics
-  allowFromNamespaces: [monitoring] # LAB: Traefik (kube-system) removed
+  allowFromNamespaces: [kube-system, monitoring]
 
 # Public: https://glasswing.takodana.dev (Cloudflare Tunnel -> Traefik -> this Ingress)
 extraIngresses:
