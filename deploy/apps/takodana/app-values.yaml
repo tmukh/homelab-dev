@@ -1,7 +1,7 @@
 # takodana.dev (portfolio + writing) on the shared app chart (charts/app).
 # A static Next.js export served by nginx-unprivileged; it writes only its pid and temp files, under /tmp.
-# sha-d669cb3; signature verified with cosign against the repo's main workflow
-image: ghcr.io/tmukh/takodana.dev@sha256:9f43a2e4f073508d8ececb4fc252c23322b2c092b369bb9d326bc9f0ea07b13a
+# sha-46c8011 (glasswing lab and write-up); signature verified with cosign against the repo's main workflow
+image: ghcr.io/tmukh/takodana.dev@sha256:7a1e9ed45149cc6f48d976c501dce08dc032d9a226dc05ac22f2b8d046736b70
 port: 8080
 
 resources:
