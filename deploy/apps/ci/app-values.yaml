@@ -1,0 +1,30 @@
+# Cí web app on the shared chart. Adds Anki words from the phone; source in tmukh/ci-cards.
+# Its collection lives on the PVC and syncs with AnkiWeb, the master copy, so losing the PVC only
+# loses the journal that restores cards after another device's forced upload.
+# sha-d8c5616
+image: ghcr.io/tmukh/ci-cards/web@sha256:1e91743336aefcbcc139a3f02f562c26ed3aa45c9f56ae9310aac85daf24316b
+
+env:
+  - name: CI_ANKI_HKEY    # AnkiWeb sync key: full access to that account, so it's sealed
+    valueFrom: {secretKeyRef: {name: ci-anki, key: hkey}}
+  - name: CI_WEB_PASSWORD # the only login: there's no Cloudflare Access in front of this app
+    valueFrom: {secretKeyRef: {name: ci-web-login, key: password}}
+
+# The dictionary and jieba's word list stay in memory: about 210 MiB measured.
+resources:
+  requests: {cpu: 50m, memory: 256Mi}
+  limits: {memory: 512Mi}
+
+persistence:
+  claimName: ci-data
+  mountPath: /data
+
+networkPolicy:
+  # kube-system: Traefik (public route)
+  allowFromNamespaces: [kube-system]
+
+# Public: https://ci.takodana.dev (Cloudflare Tunnel -> Traefik -> this Ingress), password login in the app
+extraIngresses:
+  - name: public
+    className: traefik
+    host: ci.takodana.dev

@@ -1,0 +1,44 @@
+# Cí web app from the shared chart, plus its PVC and sealed AnkiWeb key (deploy/apps/ci/manifests).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ci
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: charts/app
+      helm:
+        releaseName: ci
+        valueFiles:
+          - $values/deploy/apps/ci/app-values.yaml
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/tmukh/homelab-dev.git
+      targetRevision: main
+      path: deploy/apps/ci/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ci
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/warn: restricted
+        pod-security.kubernetes.io/audit: restricted
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: 10
+      backoff:
+        duration: 30s
+        factor: 2
+        maxDuration: 10m

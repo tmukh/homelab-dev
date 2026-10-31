@@ -21,4 +21,7 @@ ingress:
     service: http_status:404
   - hostname: glasswing.takodana.dev
     service: http://traefik.kube-system.svc.cluster.local:80
+  # Cí web app: public, with its own password login (it holds an AnkiWeb key).
+  - hostname: ci.takodana.dev
+    service: http://traefik.kube-system.svc.cluster.local:80
   - service: http_status:404
