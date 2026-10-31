@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: ci-anki
+  namespace: ci
+spec:
+  encryptedData:
+    hkey: AgAXqWQ+dD+xsfE5ywv95yKqXiN/FP1NSkMNVv1N6rIfu/PnoY09HUcLplg80wiG6++BlOsiw4EsDBnqFjcuNywe43zE+8f6GmntJCU0XiaMLYYI4vcFSux8lhgfIuxOBMJYetFulpKK8K5NDkhlCAOV5TYNfA9o177o/HUaJFOMJT7nNsAZgXZPabFxMmEWo0mD/Cp3T4PWAqux6+3nVdjDunmJiYzLii3SWeIBiGA9CVym1xFLe4A3uUBXOiApYy4R3HM66CdZCNhOsaqX6T6mW59rRBsWtBKbpW5RubciaEm2xa12ql414qI1EA1DbHpT4fKSlWTjf3tG7b6vu8UrEdufuJ2Ydq9wSdxwVk/y9XWUDvGTrez9owUqIjQnq+16Dz/bZBD4JWt3j/n1o1CZ4buEia/uYFw3I2MZMEMVb//f8RCjYOkuRRasgJAkJ1tCt080xfaP/53+6wkQ2QHkwmzYHH5MGLJqn75PQ7hkSqAJ/NMhozMZ3cPnSaqHjebQ6qtT8Uaw06qBwUPrBmyazeZMi8OfSNMokTwlN5jjWqhrcPgePkhE2uLRfskRMSAfeFOMl7SEN9D6+GNWbEQBPfgygk+AMYcL93Flj+A6svdt4sj6J6ABv0+bdLqa7GAXsnqTrYsUD0zBW9mBLvSDCpORonLXNX1YiSPDDHBeQeDbLxuNnr4QjegamA4f1iLK10UMTpwUlaKBV0XWTL41
+  template:
+    metadata:
+      name: ci-anki
+      namespace: ci
