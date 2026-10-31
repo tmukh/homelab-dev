@@ -1,0 +1,13 @@
+---
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: ci-web-login
+  namespace: ci
+spec:
+  encryptedData:
+    password: AgCpHGb+5tSBa7oHajV7iqWhm1M8g0xO1JV2woj1frvCkE50SRsZn8iQWkpaS3RMT3/bA29FounyunAnhzQP/QTOKiIaZHjN2S4HfaNnObZoctIwBj5vIP+FBkZjCyYuWEqJQ8Rh4Dg9GGhyXvTXaC7m4OtQGC13OgztFKnR0PIEb6X6efRrXSOF0uy0e1H1eZGFC/D57lcI/8qs2RhZJozsjdNUN3wagV+noU37HDaejKI5Xcn/1muCcCMf+9XELdfIU7mMzYFuxt5PIcibYKUCaDZD1WbWsqW32hyUc65Z2phHbucKtob/oWgGifcw7wrzrNpJuv0L12WF3r1lrPNlWcCkJ/hQYC+FHbHg4/P64HAwkooGeVkgZO1hXme5Jo/go4Ci8Sx3KqHFnw4+fsSCWH1ZDSVMUmSkzhh3N2QR/WG69cpdN4/w4cJX571E6es5Pd2PK7e4t3mcwuMer2l7WefLRGnPEMLeVGoBIbK5uqagDIghdmBBobdVP1GnYWhc0vSLPc9dBH4JwbGFnneunJDx7BDO39XZUBZsZvvpDz0Hu14HiUo9VIKiwUSuSFUqFbQsa/vuLDdz7kFGm2ql3SJnaY+y467uSTJ/gc1p7ZeEZ9quiuFH8L1gKsa0DxeFwD2VX7+XvYGVfDL7hUK326ZcfqKZ+CBX+yhdwrvml3ZKvdSoAjDITv1qZMvz53ehiNZHW2sIbsk6SRUhLtbJNWKbYNunqkFbG0nC05ld7Q==
+  template:
+    metadata:
+      name: ci-web-login
+      namespace: ci

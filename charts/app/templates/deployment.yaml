@@ -5,6 +5,9 @@ metadata:
   labels: {{- include "app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
+  {{- if .Values.persistence.claimName }}
+  strategy: {type: Recreate}
+  {{- end }}
   selector:
     matchLabels: {{- include "app.selector" . | nindent 6 }}
   template:
@@ -47,5 +50,11 @@ spec:
           resources: {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - {name: tmp, mountPath: /tmp}
+            {{- with .Values.persistence.claimName }}
+            - {name: data, mountPath: {{ $.Values.persistence.mountPath }}}
+            {{- end }}
       volumes:
         - {name: tmp, emptyDir: {}}
+        {{- with .Values.persistence.claimName }}
+        - {name: data, persistentVolumeClaim: {claimName: {{ . }}}}
+        {{- end }}

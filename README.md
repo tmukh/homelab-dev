@@ -25,6 +25,8 @@ A homelab Kubernetes platform (k3s on WSL2) deployed with GitOps. A learning pro
 
 - kube-lab: static site, later an API and a Postgres database. See src/kube-lab/README.md.
 - application-tracker: tailnet only.
+- ci: add Anki words from the phone (tmukh/ci-cards). Keeps its own collection, synced with AnkiWeb. Public at
+  https://ci.takodana.dev via Cloudflare Tunnel, with its own password login.
 - night-sky-digest: API, website and nightly CronJobs on the shared chart (charts/app), CloudNativePG
   database, public at https://digest.takodana.dev via Cloudflare Tunnel.
 

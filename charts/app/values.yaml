@@ -9,6 +9,9 @@ resources:
   limits: {memory: 512Mi}
 probes:
   path: /healthz
+# A PVC that already exists (not created here, so a chart change can't delete its data), mounted
+# into the web container. Pods then use Recreate: a ReadWriteOnce volume can't be on two at once.
+persistence: {claimName: "", mountPath: ""}
 initContainers: []        # [{name, command}] run with the same image, env and security settings
 cronJobs: []              # [{name, schedule, command, resources?, activeDeadlineSeconds?}]
 timeZone: Europe/Berlin
